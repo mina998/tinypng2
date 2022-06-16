@@ -1,3 +1,4 @@
+<?php if (!isset($option)) return; ?>
 <style>
     .tiny_keys{
         margin:0 220px;border-collapse:collapse;
@@ -17,8 +18,8 @@
             <tr>
                 <th scope="row"><label for="mode">任务模式</label></th>
                 <td>
-                    <input name="mode" type="hidden"  value="<?php echo $this->mode;?>">
-                    <input id="mode" type="checkbox" <?php if ($this->mode){ ?> checked="checked" <?php }?>>
+                    <input name="mode" type="hidden"  value="<?php echo $option->mode;?>">
+                    <input id="mode" type="checkbox" <?php if ($option->mode){ ?> checked="checked" <?php }?>>
                     "勾选" 使用任务模式 <code>此功能赞不支持</code>
                 </td>
             </tr>
@@ -26,12 +27,12 @@
                 <th scope="row"><label for="keys">TinyPNG密钥</label></th>
                 <td>
                     <?php
-                        if(!empty($fails)){
+                        if(!empty($option->fail)){
                     ?>
                     <p style="margin-bottom: 10px">验证失败:</p>
                     <div class="error-message" style="font-weight: 400; margin-bottom:10px; line-height:1.5;">
                         <?php
-                            foreach($fails as $item){
+                            foreach($option->fail as $item){
                                 echo $item . '<br />';
                             }
                         ?>
@@ -49,7 +50,7 @@
             </tbody>
         </table>
     </form>
-    <?php if ( !empty($keys) ) { ?>
+    <?php if ( !empty($option->keys) ) { ?>
     <table class="tiny_keys">
         <tr>
             <th style="text-align:left">TinyPNG密钥</th>
@@ -57,10 +58,10 @@
             <th>已使用</th>
             <th>操作</th>
         </tr>
-        <?php foreach ($keys as $id => $item) {?>
+        <?php foreach ($option->keys as $id => $item) {?>
         <tr class="<?php echo $id; ?>">
             <td><?php echo $id; ?></td>
-            <td><?php echo $item['total']; ?></td>
+            <td class="total"><?php echo $item['total']; ?></td>
             <td class="used"><?php echo $item['used']; ?></td>
             <td id="<?php echo $id; ?>">
                 <button class="test">验证</button>
@@ -89,8 +90,9 @@
             })
         })
         $('.test').click(function() {
-            let key = $(this).parent().attr('id');
-            $.post('<?php echo admin_url('admin-ajax.php')?>', {'key':key, 'q':'test', 'action':'ask_key'}, function (msg){
+            let key   = $(this).parent().attr('id');
+            let total = $(this).parent().siblings('.total').html()
+            $.post('<?php echo admin_url('admin-ajax.php')?>', {'key':key, 'q':'test', 'total':total, 'action':'ask_key'}, function (msg){
                 if(msg >= 0){
                     $('td#'+key).siblings('.used').html(msg)
                     alert('验证完成');
